@@ -13,8 +13,9 @@ int main(int argc, char *argv[])
 
   // 2. Calculate best parameters
   int bins = 11;
+  int train_samples = data_store.items.size() * 0.8;
   QVector<float> errors(bins, 0.0f);
-  for(int i = 0; i < 100/*data_store.items.size()*/; ++i)
+  for(int i = 0; i < train_samples; ++i)
   {
     for(int f = 0; f < bins; ++f)
     {
@@ -22,7 +23,7 @@ int main(int argc, char *argv[])
       float average_weight = 1.0f - float(f) / (bins - 1);
       errors[f] += data_store.predictMonthlySale_totalError(data_store.items[i], prediction_weight, average_weight);
     }
-    qWarning() << "Progress" << float(i) / float(data_store.items.size());
+    qWarning() << "Progress" << float(i) / float(train_samples);
   }
 
   int min_idx = 0;
@@ -39,7 +40,7 @@ int main(int argc, char *argv[])
   qWarning() << "FINAL PREDICTION ERROR";
   int total_error = 0;
   int total_sold = 0;
-  for(int i = 0; i < data_store.items.size(); ++i)
+  for(int i = train_samples; i < data_store.items.size(); ++i)
   {
     QPair<int, int> final_prediction_error = data_store.monthlySalePredictionError(data_store.items[i], min_idx / (bins - 1), 1.0f - float(min_idx) / (bins - 1));
     total_error += final_prediction_error.first;
@@ -48,7 +49,7 @@ int main(int argc, char *argv[])
   }
   qWarning() << "Correct prediction: " << 1.0f - float(total_error) / float(total_sold);
 
-   4. Prepare esults for submission
+  // 4. Prepare esults for submission
   qWarning() << "SUBMISSION";
   qWarning() << "ID,item_cnt_month";
   for(int i = 0; i < data_store.items.size(); ++i)
